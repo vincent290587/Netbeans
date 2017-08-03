@@ -26,7 +26,6 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 
 /**
  *
@@ -215,8 +214,10 @@ public class Authentification {
             }
 
             httpClient.close();
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
+            System.err.println(e.toString());
+        } catch (ParseException e) {
             System.err.println(e.toString());
         }
         return jsonObj;
