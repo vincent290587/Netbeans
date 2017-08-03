@@ -32,15 +32,27 @@ public class Simulator {
 
     public String simulatedSentence(String line) {
 
-        String morceaux[] = line.split(";");
-        double lat, lon, speed = 0;
+        String morceaux[];
+        
+        if (!line.contains(";")) {
+            morceaux = line.split(" ");
+        } else if (!line.contains(",")) {
+            morceaux = line.split(",");
+        } {
+            morceaux = line.split(" ");
+        }
+        
+        
+        double lat, lon, alt, speed = 0;
         int secjour;
 
         lat = Double.parseDouble(morceaux[0]);
         lon = Double.parseDouble(morceaux[1]);
-        secjour = Integer.parseInt(morceaux[2]);
+        alt = Double.parseDouble(morceaux[2]);
+        secjour = (int)Double.parseDouble(morceaux[3]);
 
-        GPRMC sent = new GPRMC(lat, lon, speed, secjour);
+        //GPRMC sent = new GPRMC(lat, lon, speed, secjour);
+        LOC sent = new LOC(lat, lon, alt, speed, secjour);
 
         return sent.toString();
     }

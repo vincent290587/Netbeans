@@ -27,7 +27,7 @@ public class GPRMC {
         String format, tmp, res;
         double val1, val2;
         
-        format = "%" + long_ + ".2f";
+        format = "%" + long_ + ".4f";
         
         val1 = (int)coord_;
         val2 = coord_ - val1;
@@ -65,7 +65,6 @@ public class GPRMC {
         
         res += ",231.8,171115,004.2,W";
         
-
         return Checksum.add(res);
     }
 
