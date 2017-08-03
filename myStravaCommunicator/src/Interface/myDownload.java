@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import myGPSUpload.myGPSUpload;
 import static java.lang.Integer.parseInt;
+import java.util.Calendar;
 import myStravaDownload.mySegment;
 
 /**
@@ -34,12 +35,23 @@ public class myDownload extends javax.swing.JPanel {
      */
     public myDownload(mySerial ser_, myConfiguration conf_) {
         initComponents();
-        jComboBox1.setVisible(false);
-        jLabel1.setVisible(false);
+        jComboBox1.setVisible(true);
+        jLabel1.setVisible(true);
         ser = ser_;
         _conf = conf_;
         strav = new myStravaDownload();
         _uploadG = new myGPSUpload(this);
+        
+        // Fill the years
+        Calendar now = Calendar.getInstance();
+        int year = now.get(Calendar.YEAR);
+        String yearInString;
+        int i;
+        for (i=0; i < 5; i++) {
+            yearInString = String.valueOf(year - i);
+            jComboBox1.addItem(yearInString);
+        }
+        jComboBox1.setSelectedIndex(0);
     }
     
     public void setSegments (List<mySegment> mes_segments) {
@@ -115,6 +127,7 @@ public class myDownload extends javax.swing.JPanel {
             }
         });
 
+        jCheckBox1.setSelected(true);
         jCheckBox1.setText("Use custom year");
         jCheckBox1.setToolTipText("");
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
@@ -129,8 +142,6 @@ public class myDownload extends javax.swing.JPanel {
                 jButton2ActionPerformed(evt);
             }
         });
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2016", "2015", "2014", "2013" }));
 
         jButton3.setText("Stop process");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
