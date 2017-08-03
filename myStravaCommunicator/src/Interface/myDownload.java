@@ -37,6 +37,8 @@ public class myDownload extends javax.swing.JPanel {
         initComponents();
         jComboBox1.setVisible(true);
         jLabel1.setVisible(true);
+        jButton2.setVisible(false);
+        jButton3.setVisible(false);
         ser = ser_;
         _conf = conf_;
         strav = new myStravaDownload();
@@ -98,7 +100,7 @@ public class myDownload extends javax.swing.JPanel {
             }
         };
         t.start();
-        
+        jButton3.setVisible(true);
     }
 
     /**
@@ -220,11 +222,13 @@ public class myDownload extends javax.swing.JPanel {
             }
         };
         t.start();
+        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // deprecated but safe her
         t.stop();
+        jButton3.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
 
 
