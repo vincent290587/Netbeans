@@ -296,7 +296,13 @@ public class myStravaDownload {
                                 }
                                 lignes.add(ligne);
                             }
-                            my_segments.add(new mySegment(lignes, curSeg, leader, curEffort));
+                            // size check
+                            if (lignes.size() > 0) {
+                                my_segments.add(new mySegment(lignes, curSeg, leader, curEffort));
+                            }
+                            
+                            System.out.println(lignes.size() + " points écrits");
+                            
                             writer.close();
                         } catch (FileNotFoundException | UnsupportedEncodingException ex) {
                             Logger.getLogger(myStravaDownload.class.getName()).log(Level.SEVERE, null, ex);
