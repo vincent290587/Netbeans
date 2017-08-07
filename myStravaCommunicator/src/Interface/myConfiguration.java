@@ -223,7 +223,7 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
 
     }
 
-    @Override
+    
     public void serialEvent(SerialPortEvent spe) {
         try {
             switch (spe.getEventType()) {
@@ -251,21 +251,28 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                         t.setPriority(Thread.MIN_PRIORITY);
                         t.start();
                     } else if (inputLine.startsWith("##LOG_STOP##")) {
-                        isDownloading = false;
-                        _parent._serial.appendLine("Historique reçu");
                         
-                        CSVWriter csv = new CSVWriter();
-                        csv.writePath("C:\\Users\\vincent\\Desktop\\today.csv", _lignes);
+                        // acknowledge and stop download
+                        this.sendString("$DWN,3");
                         
-                        t.stop();
-                        t = new Thread() {
-                            @Override
-                            public void run() {
-                                _parent.getUpload().registerDownload(_lignes);
-                            }
-                        };
-                        t.setPriority(Thread.MAX_PRIORITY);
-                        t.start();
+                        if (isDownloading) {
+                            _parent._serial.appendLine("Historique reçu");
+                            isDownloading = false;
+                            
+                            CSVWriter csv = new CSVWriter();
+                            csv.writePath("C:\\Users\\vincent\\Desktop\\today.csv", _lignes);
+                        
+                            t.stop();
+                            t = new Thread() {
+                                @Override
+                                public void run() {
+                                    _parent.getUpload().registerDownload(_lignes);
+                                }
+                            };
+                            t.setPriority(Thread.MAX_PRIORITY);
+                            t.start();
+                        }
+
                     }
 
                     if (isDownloading == true) {
