@@ -22,6 +22,7 @@ import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
+import myStravaUpload.CSVWriter;
 
 /**
  *
@@ -252,6 +253,10 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                     } else if (inputLine.startsWith("##LOG_STOP##")) {
                         isDownloading = false;
                         _parent._serial.appendLine("Historique reçu");
+                        
+                        CSVWriter csv = new CSVWriter();
+                        csv.writePath("C:\\Users\\vincent\\Desktop\\today.csv", _lignes);
+                        
                         t.stop();
                         t = new Thread() {
                             @Override

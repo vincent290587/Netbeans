@@ -34,7 +34,7 @@ public class mySimulator extends javax.swing.JPanel {
         // @TODO
         //jFileChooser1.showOpenDialog(this);
         //File fichier = jFileChooser1.getSelectedFile();
-        File fichier = new File("C:\\Users\\vincent\\Desktop\\GPX.csv");
+        File fichier = new File("C:\\Users\\vincent\\Desktop\\GPX_simu.csv");
         _t = new Thread() {
             @Override
             public void run() {
@@ -90,6 +90,7 @@ public class mySimulator extends javax.swing.JPanel {
         );
 
         jButton1.setText("Start");
+        jButton1.setToolTipText("Reads the file called GPX_simu.csv on your desktop");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
