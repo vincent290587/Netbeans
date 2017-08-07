@@ -29,11 +29,11 @@ public class myIHM extends javax.swing.JFrame {
         _simu = new mySimulator(this);
         _down = new myDownload(_serial, _config);
         
-        jTabbedPane1.add("Configuration", _config);
-        jTabbedPane1.add("Download", _down);
-        jTabbedPane1.add("Upload", _upload);
-        jTabbedPane1.add("Simulator", _simu);
-        jTabbedPane1.add("Serial", _serial);
+        jTabbedPane1.add("Interface", _config);
+        jTabbedPane1.add("Strava", _down);
+        jTabbedPane1.add("Historique", _upload);
+        jTabbedPane1.add("Simulateur", _simu);
+        jTabbedPane1.add("Console", _serial);
         
     }
     
