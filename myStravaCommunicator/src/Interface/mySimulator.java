@@ -41,9 +41,6 @@ public class mySimulator extends javax.swing.JPanel {
                 _simu.startSimu(_parent._config, fichier.getAbsolutePath());
             }
 
-            public void stopSimu() {
-                _simu.stopSimu();
-            }
         };
         _t.start();
     }
@@ -51,6 +48,7 @@ public class mySimulator extends javax.swing.JPanel {
     public void stopSimulator() {
 
         _t.stop();
+        _simu.stopSimu();
 
     }
 

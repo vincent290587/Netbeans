@@ -61,7 +61,8 @@ public class Simulator {
 
     public void stopSimu() {
         _config.sendString("#");
-        _config.sendString("$DWN,2");
+        
+        _config.appendLine("Fin de simulation");
         if (fis != null) {
             try {
                 fis.close();
