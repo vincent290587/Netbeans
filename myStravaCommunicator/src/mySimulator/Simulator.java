@@ -43,13 +43,15 @@ public class Simulator {
         }
         
         
-        double lat, lon, alt, speed = 0;
+        double lat, lon, alt, speed;
         int secjour;
 
         lat = Double.parseDouble(morceaux[0]);
         lon = Double.parseDouble(morceaux[1]);
         alt = Double.parseDouble(morceaux[2]);
         secjour = (int)Double.parseDouble(morceaux[3]);
+        
+        speed = 27.;
 
         //GPRMC sent = new GPRMC(lat, lon, speed, secjour);
         LOC sent = new LOC(lat, lon, alt, speed, secjour);
