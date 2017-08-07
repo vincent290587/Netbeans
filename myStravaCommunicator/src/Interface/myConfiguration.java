@@ -250,17 +250,23 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                         t.setPriority(Thread.MIN_PRIORITY);
                         t.start();
                     } else if (inputLine.startsWith("##LOG_STOP##")) {
-                        isDownloading = false;
-                        _parent._serial.appendLine("Historique reçu");
-                        t.stop();
-                        t = new Thread() {
-                            @Override
-                            public void run() {
-                                _parent.getUpload().registerDownload(_lignes);
-                            }
-                        };
-                        t.setPriority(Thread.MAX_PRIORITY);
-                        t.start();
+                        
+                        // acknowledge and stop download
+                        this.sendString("$DWN,3");
+                        
+                        if (isDownloading) {
+                            _parent._serial.appendLine("Historique reçu");
+                            isDownloading = false;
+                            t.stop();
+                            t = new Thread() {
+                                @Override
+                                public void run() {
+                                    _parent.getUpload().registerDownload(_lignes);
+                                }
+                            };
+                            t.setPriority(Thread.MAX_PRIORITY);
+                            t.start();
+                        }
                     }
 
                     if (isDownloading == true) {
