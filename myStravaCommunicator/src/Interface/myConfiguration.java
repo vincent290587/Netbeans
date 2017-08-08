@@ -232,6 +232,7 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                     String inputLine = _input.readLine();
 
                     if (inputLine.startsWith("##LOG_START##")) {
+                        
                         _lignes.clear();
                         isDownloading = true;
                         t.stop();
@@ -273,10 +274,17 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                             t.start();
                         }
 
-                    }
-
-                    if (isDownloading == true) {
+                    } else if (isDownloading == true && 
+                            !inputLine.contains("$") && 
+                            !inputLine.contains("*")) {
+                        
+                        // ajout
                         _lignes.add(inputLine);
+                        
+                    }
+                    
+                    // print to screen
+                    if (isDownloading == true) {
                         appendLineRL(" <--" + inputLine);
                     } else {
                         appendLine(" <--" + inputLine);

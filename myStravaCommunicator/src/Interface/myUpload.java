@@ -141,7 +141,7 @@ public class myUpload extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        _parent._config.sendString("$DWN,3");
+        _parent._config.sendString("$DWN,4");
     }//GEN-LAST:event_jButton4ActionPerformed
 
 
