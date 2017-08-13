@@ -13,15 +13,18 @@ public class CSVWriter {
      */
     public void writePath(String file, List<String> _lignes) {
         
-        String segments = "";
-
+        String tbw = "";
+        
         for (String l : _lignes) {
-            segments += l.toString();
+
+            tbw += l;
+            tbw += "\n";
+            
         }
 
         try {
             try (FileWriter writer = new FileWriter(file, false)) {
-                writer.append(segments);
+                writer.append(tbw);
                 writer.flush();
             }
         } catch (IOException e) {
