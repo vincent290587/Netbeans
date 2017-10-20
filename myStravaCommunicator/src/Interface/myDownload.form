@@ -27,7 +27,7 @@
                       <Component id="jComboBox1" min="-2" pref="102" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                       <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="114" max="32767" attributes="0"/>
+                      <EmptySpace pref="141" max="32767" attributes="0"/>
                       <Component id="jButton2" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
@@ -65,7 +65,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Ann&#xe9;e"/>
+        <Property name="text" type="java.lang.String" value=":"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JProgressBar" name="jProgressBar1">
