@@ -5,7 +5,9 @@
  */
 package Interface;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import mySimulator.Simulator;
 
 /**
@@ -15,6 +17,8 @@ import mySimulator.Simulator;
 public class myScreen extends javax.swing.JPanel {
 
     myIHM _parent;
+    BufferedImage image = new BufferedImage(120, 200, BufferedImage.TYPE_BYTE_BINARY);
+    Graphics g_image;
 
     /**
      * Creates new form mySimulator
@@ -25,16 +29,29 @@ public class myScreen extends javax.swing.JPanel {
         initComponents();
         _parent = parent_;
         
+        g_image = image.getGraphics();
+        
+        
+        g_image.drawRect(1, 1, 40, 40);
+        image.setRGB(5, 5, 1);
     }
     
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.drawString("BLAH", 20, 20);
-        g.drawRect(200, 200, 200, 200);
+        // position on the panel
+        g.drawImage(image, 300, 20, null);
     }
 
+    public void parseLine(String line) {
+        
+        if (line.length() > 10) {
+            int ligne = (int)line.charAt(1);
+
+            System.out.println("Receiving line " + ligne);
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

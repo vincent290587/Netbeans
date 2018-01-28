@@ -15,7 +15,7 @@ public class myIHM extends javax.swing.JFrame {
     public myDownload _down;
     public myUpload _upload;
     public mySerial _serial;
-    public myScreen _simu;
+    public myScreen _screen;
     /**
      * Creates new form myIHM
      */
@@ -26,13 +26,13 @@ public class myIHM extends javax.swing.JFrame {
         _serial = new mySerial();
         
         _upload = new myUpload(this);
-        _simu = new myScreen(this);
+        _screen = new myScreen(this);
         _down = new myDownload(_serial, _config);
         
         jTabbedPane1.add("Interface", _config);
         jTabbedPane1.add("Segments", _down);
         jTabbedPane1.add("Upload", _upload);
-        jTabbedPane1.add("Screen", _simu);
+        jTabbedPane1.add("Screen", _screen);
         jTabbedPane1.add("Console", _serial);
         
     }

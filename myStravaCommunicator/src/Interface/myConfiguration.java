@@ -233,6 +233,7 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
     }
 
     
+    @Override
     public void serialEvent(SerialPortEvent spe) {
         try {
             switch (spe.getEventType()) {
@@ -240,56 +241,60 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
 
                     String inputLine = _input.readLine();
 
-                    if (inputLine.startsWith("##LOG_START##")) {
-                        
-                        _lignes.clear();
-                        isDownloading = true;
-                        serial_thread.stop();
-                        // thread pour repeindre le text area
-                        serial_thread = new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    jTextArea1.repaint();
-                                    jTextArea1.getParent().repaint();
-                                    Thread.sleep(300);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(myConfiguration.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            }
-                        };
-                        serial_thread.setPriority(Thread.MIN_PRIORITY);
-                        serial_thread.start();
-                    } else if (inputLine.startsWith("##LOG_STOP##")) {
-                        
-                        // acknowledge and stop download
-                        this.sendString("$DWN,3");
-                        
-                        if (isDownloading) {
-                            _parent._serial.appendLine("Historique reçu");
-                            isDownloading = false;
-                            
-                            CSVWriter csv = new CSVWriter();
-                            csv.writePath("C:\\Users\\vincent\\Desktop\\today.csv", _lignes);
-                        
+                    if (!inputLine.contains("@")) {
+                        if (inputLine.startsWith("##LOG_START##")) {
+
+                            _lignes.clear();
+                            isDownloading = true;
                             serial_thread.stop();
+                            // thread pour repeindre le text area
                             serial_thread = new Thread() {
                                 @Override
                                 public void run() {
-                                    _parent.getUpload().registerDownload(_lignes);
+                                    try {
+                                        jTextArea1.repaint();
+                                        jTextArea1.getParent().repaint();
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException ex) {
+                                        Logger.getLogger(myConfiguration.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                 }
                             };
-                            serial_thread.setPriority(Thread.MAX_PRIORITY);
+                            serial_thread.setPriority(Thread.MIN_PRIORITY);
                             serial_thread.start();
-                        }
+                        } else if (inputLine.startsWith("##LOG_STOP##")) {
 
-                    } else if (isDownloading == true && 
-                            !inputLine.contains("$") && 
-                            !inputLine.contains("*")) {
-                        
-                        // ajout
-                        _lignes.add(inputLine);
-                        
+                            // acknowledge and stop download
+                            this.sendString("$DWN,3");
+
+                            if (isDownloading) {
+                                _parent._serial.appendLine("Historique reçu");
+                                isDownloading = false;
+
+                                CSVWriter csv = new CSVWriter();
+                                csv.writePath("C:\\Users\\vincent\\Desktop\\today.csv", _lignes);
+
+                                serial_thread.stop();
+                                serial_thread = new Thread() {
+                                    @Override
+                                    public void run() {
+                                        _parent.getUpload().registerDownload(_lignes);
+                                    }
+                                };
+                                serial_thread.setPriority(Thread.MAX_PRIORITY);
+                                serial_thread.start();
+                            }
+
+                        } else if (isDownloading == true && 
+                                !inputLine.contains("$") && 
+                                !inputLine.contains("*")) {
+
+                            // ajout
+                            _lignes.add(inputLine);
+
+                        }
+                    } else {
+                        _parent._screen.parseLine(inputLine);
                     }
                     
                     // print to screen
