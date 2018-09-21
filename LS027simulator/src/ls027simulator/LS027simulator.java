@@ -8,7 +8,10 @@ package ls027simulator;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -16,12 +19,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import static java.lang.Thread.sleep;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  *
@@ -38,6 +44,7 @@ public class LS027simulator extends Canvas implements Runnable {
     private static int[] ls027_canvas;
 
     public InputStream in_buffer;
+    public OutputStream out_buffer;
 
     public LS027simulator() {
         ls027_canvas = new int[WIDTH * HEIGHT / 8];
@@ -117,12 +124,6 @@ public class LS027simulator extends Canvas implements Runnable {
 
                 int pixel_grp = ls027_canvas[i * HW_WIDTH / 8 + j];
 
-                //int value = (int) (pixel_grp - '\u0000');
-
-                if (pixel_grp != 0) {
-                    //System.out.println("Grp: " + (int)(pixel_grp & 0xFF) + "  " + pixel_grp);
-                }
-
                 for (int k = 0; k < 8; k++) {
 
                     if (!isKthBitSet(pixel_grp, k + 1)) {
@@ -151,15 +152,46 @@ public class LS027simulator extends Canvas implements Runnable {
     public static void main(String[] args) {
 
         LS027simulator sim = new LS027simulator();
+        sim.setFocusable(false);
 
-        // TODO code application logic here
         JFrame frame = new JFrame();
 
-        frame.setSize(WIDTH, HEIGHT);
+        frame.setVisible(false);
+        frame.setSize(WIDTH + 20, HEIGHT + 50);
         frame.add(sim);
 
         frame.setVisible(true);
-        WindowListener listen = new WindowListener() {
+        KeyListener klisten = new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case 100:
+                    case 101:
+                    case 102: {
+                        System.out.println("Sent key: " + e.getKeyCode());
+                        System.out.flush();
+                        try {
+                            sim.out_buffer.write(e.getKeyCode());
+                        } catch (IOException ex) {
+                            Logger.getLogger(LS027simulator.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    break;
+                    default:
+                        System.out.println("Key rel.: " + e.getKeyCode());
+                        break;
+                }
+            }
+        };
+        WindowListener wlisten = new WindowListener() {
             @Override
             public void windowOpened(WindowEvent e) {
                 System.out.println("Hello LS027");
@@ -191,7 +223,9 @@ public class LS027simulator extends Canvas implements Runnable {
             public void windowDeactivated(WindowEvent e) {
             }
         };
-        frame.addWindowListener(listen);
+        frame.setVisible(true);
+        frame.addWindowListener(wlisten);
+        frame.addKeyListener(klisten);
 
         try {
             String hostName = "localhost";
@@ -199,6 +233,7 @@ public class LS027simulator extends Canvas implements Runnable {
 
             Socket echoSocket = new Socket(hostName, portNumber);
             sim.in_buffer = echoSocket.getInputStream();
+            sim.out_buffer = echoSocket.getOutputStream();
 
         } catch (IOException ex) {
             Logger.getLogger(LS027simulator.class.getName()).log(Level.SEVERE, null, ex);
