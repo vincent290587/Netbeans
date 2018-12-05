@@ -5,29 +5,24 @@
  */
 package ls027simulator;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import static java.lang.Thread.sleep;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *
@@ -41,13 +36,26 @@ public class LS027simulator extends Canvas implements Runnable {
     private static final int HW_WIDTH = HEIGHT;
     private static final int HW_HEIGHT = WIDTH;
 
+    private static boolean take_s_shot;
+
     private static int[] ls027_canvas;
 
+    public static int[] rgb_neo;
+    
+    static int nb_photo;
+    
     public InputStream in_buffer;
     public OutputStream out_buffer;
 
     public LS027simulator() {
         ls027_canvas = new int[WIDTH * HEIGHT / 8];
+        rgb_neo = new int[3];
+        take_s_shot = false;
+        nb_photo = 0;
+    }
+
+    public void takeScreenShot() {
+        take_s_shot = true;
     }
 
     void read_pipe() {
@@ -67,6 +75,13 @@ public class LS027simulator extends Canvas implements Runnable {
                         ls027_canvas[nb_read++] = byte_read;
                     }
                 }
+                
+                // neopixel color
+                rgb_neo[0] = in_buffer.read();
+                rgb_neo[1] = in_buffer.read();
+                rgb_neo[2] = in_buffer.read();
+                
+                nb_read += 3;
 
                 //in_buffer.reset();
             }
@@ -117,7 +132,7 @@ public class LS027simulator extends Canvas implements Runnable {
 
         super.paint(g);
 
-        BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_BYTE_BINARY);
+        BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 
         for (int i = 0; i < HW_HEIGHT; i++) {
             for (int j = 0; j < HW_WIDTH / 8; j++) {
@@ -130,19 +145,38 @@ public class LS027simulator extends Canvas implements Runnable {
                         img.setRGB(HW_HEIGHT - i - 1, j * 8 + k, Color.WHITE.getRGB());
                     } else {
                         img.setRGB(HW_HEIGHT - i - 1, j * 8 + k, Color.BLACK.getRGB());
-                        //System.out.println("    Set: " + k);
                     }
                 }
 
             }
         }
+        
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
 
-//        try {
-//            img = ImageIO.read(new File("image.png"));
-//            //ImageIO.write(img, "png", new File("image.png"));
-//        } catch (IOException e) {
-//            System.out.println("Some exception occured " + e);
-//        }
+                int pixel_rgb = rgb_neo[0];
+                pixel_rgb = (pixel_rgb << 8) + rgb_neo[1];
+                pixel_rgb = (pixel_rgb << 8) + rgb_neo[2];
+
+                img.setRGB(WIDTH - i - 1, 20 - j - 1, pixel_rgb);
+
+            }
+        }
+
+        if (take_s_shot) {
+            take_s_shot = false;
+            
+            try {
+//                img = ImageIO.read(new File("image.png"));
+                ImageIO.write(img, "png", new File("image" + nb_photo + ".png"));
+                nb_photo += 1;
+                System.out.println("Screenshot taken");
+            } catch (IOException e) {
+                System.out.println("Some exception occured " + e);
+            }
+        }
+        
+        // draw
         g.drawImage(img, 0, 0, this);
     }
 
@@ -185,6 +219,9 @@ public class LS027simulator extends Canvas implements Runnable {
                         }
                     }
                     break;
+                    case 105:
+                        sim.takeScreenShot();
+                        break;
                     default:
                         System.out.println("Key rel.: " + e.getKeyCode());
                         break;
