@@ -5,51 +5,52 @@
  */
 package Interface;
 
-import java.io.File;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import mySimulator.Simulator;
 
 /**
  *
  * @author vincent
  */
-public class mySimulator extends javax.swing.JPanel {
+public class myScreen extends javax.swing.JPanel {
 
-    Thread _t;
     myIHM _parent;
-    Simulator _simu;
+    BufferedImage image = new BufferedImage(120, 200, BufferedImage.TYPE_BYTE_BINARY);
+    Graphics g_image;
 
     /**
      * Creates new form mySimulator
      *
      * @param parent_
      */
-    public mySimulator(myIHM parent_) {
+    public myScreen(myIHM parent_) {
         initComponents();
         _parent = parent_;
-        _simu = new Simulator();
+        
+        g_image = image.getGraphics();
+        
+        
+        g_image.drawRect(1, 1, 40, 40);
+        image.setRGB(5, 5, 1);
+    }
+    
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // position on the panel
+        g.drawImage(image, 300, 20, null);
     }
 
-    public void startSimulator() {
+    public void parseLine(String line) {
+        
+        if (line.length() > 10) {
+            int ligne = (int)line.charAt(1);
 
-        // @TODO
-        //jFileChooser1.showOpenDialog(this);
-        //File fichier = jFileChooser1.getSelectedFile();
-        File fichier = new File("C:\\Users\\vincent\\Desktop\\GPX_simu.csv");
-        _t = new Thread() {
-            @Override
-            public void run() {
-                _simu.startSimu(_parent._config, fichier.getAbsolutePath());
-            }
-
-        };
-        _t.start();
-    }
-
-    public void stopSimulator() {
-
-        _t.stop();
-        _simu.stopSimu();
-
+            System.out.println("Receiving line " + ligne);
+        }
     }
 
     /**
@@ -63,8 +64,6 @@ public class mySimulator extends javax.swing.JPanel {
 
         jFrame1 = new javax.swing.JFrame();
         jFileChooser1 = new javax.swing.JFileChooser();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -87,57 +86,20 @@ public class mySimulator extends javax.swing.JPanel {
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
-        jButton1.setText("Start");
-        jButton1.setToolTipText("Reads the file called GPX_simu.csv on your desktop");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        jButton2.setText("Stop");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 291, Short.MAX_VALUE)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addGap(0, 551, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addContainerGap(210, Short.MAX_VALUE))
+            .addGap(0, 263, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        startSimulator();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        if (_t != null) {
-            stopSimulator();
-        }
-    }//GEN-LAST:event_jButton2ActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JFrame jFrame1;
     // End of variables declaration//GEN-END:variables

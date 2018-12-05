@@ -12,6 +12,7 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -22,6 +23,7 @@ import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
+import mySimulator.Simulator;
 import myStravaUpload.CSVWriter;
 
 /**
@@ -30,7 +32,11 @@ import myStravaUpload.CSVWriter;
  */
 public class myConfiguration extends javax.swing.JPanel implements SerialPortEventListener {
 
-    Thread t;
+    Thread simu_thread;
+    Thread serial_thread;
+    
+    
+    Simulator _simu;
     SerialPort _port;
     BufferedReader _input;
     OutputStream _output;
@@ -61,6 +67,9 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
         isConnected = false;
         isDownloading = false;
         jButton4.setVisible(false);
+        jToggleButton1.setVisible(false);
+        
+        _simu = new Simulator();
     }
 
     public void appendLine(String texte) {
@@ -224,6 +233,7 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
     }
 
     
+    @Override
     public void serialEvent(SerialPortEvent spe) {
         try {
             switch (spe.getEventType()) {
@@ -231,56 +241,60 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
 
                     String inputLine = _input.readLine();
 
-                    if (inputLine.startsWith("##LOG_START##")) {
-                        
-                        _lignes.clear();
-                        isDownloading = true;
-                        t.stop();
-                        // thread pour repeindre le text area
-                        t = new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    jTextArea1.repaint();
-                                    jTextArea1.getParent().repaint();
-                                    Thread.sleep(300);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(myConfiguration.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            }
-                        };
-                        t.setPriority(Thread.MIN_PRIORITY);
-                        t.start();
-                    } else if (inputLine.startsWith("##LOG_STOP##")) {
-                        
-                        // acknowledge and stop download
-                        this.sendString("$DWN,3");
-                        
-                        if (isDownloading) {
-                            _parent._serial.appendLine("Historique reçu");
-                            isDownloading = false;
-                            
-                            CSVWriter csv = new CSVWriter();
-                            csv.writePath("C:\\Users\\vincent\\Desktop\\today.csv", _lignes);
-                        
-                            t.stop();
-                            t = new Thread() {
+                    if (!inputLine.contains("@")) {
+                        if (inputLine.startsWith("##LOG_START##")) {
+
+                            _lignes.clear();
+                            isDownloading = true;
+                            serial_thread.stop();
+                            // thread pour repeindre le text area
+                            serial_thread = new Thread() {
                                 @Override
                                 public void run() {
-                                    _parent.getUpload().registerDownload(_lignes);
+                                    try {
+                                        jTextArea1.repaint();
+                                        jTextArea1.getParent().repaint();
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException ex) {
+                                        Logger.getLogger(myConfiguration.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                 }
                             };
-                            t.setPriority(Thread.MAX_PRIORITY);
-                            t.start();
-                        }
+                            serial_thread.setPriority(Thread.MIN_PRIORITY);
+                            serial_thread.start();
+                        } else if (inputLine.startsWith("##LOG_STOP##")) {
 
-                    } else if (isDownloading == true && 
-                            !inputLine.contains("$") && 
-                            !inputLine.contains("*")) {
-                        
-                        // ajout
-                        _lignes.add(inputLine);
-                        
+                            // acknowledge and stop download
+                            this.sendString("$DWN,3");
+
+                            if (isDownloading) {
+                                _parent._serial.appendLine("Historique reçu");
+                                isDownloading = false;
+
+                                CSVWriter csv = new CSVWriter();
+                                csv.writePath("C:\\Users\\vincent\\Desktop\\today.csv", _lignes);
+
+                                serial_thread.stop();
+                                serial_thread = new Thread() {
+                                    @Override
+                                    public void run() {
+                                        _parent.getUpload().registerDownload(_lignes);
+                                    }
+                                };
+                                serial_thread.setPriority(Thread.MAX_PRIORITY);
+                                serial_thread.start();
+                            }
+
+                        } else if (isDownloading == true && 
+                                !inputLine.contains("$") && 
+                                !inputLine.contains("*")) {
+
+                            // ajout
+                            _lignes.add(inputLine);
+
+                        }
+                    } else {
+                        _parent._screen.parseLine(inputLine);
                     }
                     
                     // print to screen
@@ -307,14 +321,14 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
 
     public void sauverGPX() {
         _parent._serial.appendLine("Historique reçu");
-        t.interrupt();
-        t = new Thread() {
+        serial_thread.interrupt();
+        serial_thread = new Thread() {
             @Override
             public void run() {
                 _parent.getUpload().registerDownload(_lignes);
             }
         };
-        t.start();
+        serial_thread.start();
     }
 
     /**
@@ -334,6 +348,7 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
         jTextArea1 = new javax.swing.JTextArea();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jToggleButton1 = new javax.swing.JToggleButton();
 
         jButton1.setText("List COM ports");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -371,16 +386,23 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
             }
         });
 
+        jToggleButton1.setText("Simulate");
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 249, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 239, Short.MAX_VALUE)
                         .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -389,8 +411,9 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                     .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton4)))
+                        .addGap(0, 10, Short.MAX_VALUE)
+                        .addComponent(jButton4))
+                    .addComponent(jToggleButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -405,11 +428,13 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(34, 34, 34)
+                        .addComponent(jToggleButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 103, Short.MAX_VALUE)
                         .addComponent(jButton4)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -427,7 +452,7 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-        t = new Thread() {
+        serial_thread = new Thread() {
             @Override
             public void run() {
                 //the following line will keep this app alive for 1000 seconds,
@@ -439,14 +464,60 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
                 }
             }
         };
-        t.start();
+        serial_thread.start();
+        jToggleButton1.setVisible(true);
+        jButton2.setVisible(false);
         //connectAction();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        
+        // stop simulation
+        if (jToggleButton1.isSelected()) {
+            stopSimulator();
+        }
+        
         disconnectSerial();
+        jButton2.setVisible(true);
+        jToggleButton1.setVisible(false);
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        // TODO add your handling code here:
+        if (jToggleButton1.isSelected()) {
+            startSimulator();
+        } else {
+            stopSimulator();
+        }
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
+
+    
+    public void startSimulator() {
+
+        // @TODO
+        //jFileChooser1.showOpenDialog(this);
+        //File fichier = jFileChooser1.getSelectedFile();
+        File fichier = new File("C:\\Users\\vincent\\Desktop\\GPX_simu.csv");
+        simu_thread = new Thread() {
+            @Override
+            public void run() {
+                _simu.startSimu(_parent._config, fichier.getAbsolutePath());
+            }
+
+        };
+        simu_thread.start();
+    }
+
+    public void stopSimulator() {
+
+        if (simu_thread != null) {
+            
+            simu_thread.stop();
+            _simu.stopSimu();
+        
+        }
+
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -457,6 +528,7 @@ public class myConfiguration extends javax.swing.JPanel implements SerialPortEve
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
 
 }
