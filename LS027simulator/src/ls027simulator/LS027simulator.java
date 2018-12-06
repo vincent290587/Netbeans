@@ -8,6 +8,7 @@ package ls027simulator;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -68,7 +69,7 @@ public class LS027simulator extends Canvas implements Runnable {
 
                 System.out.println(".");
                 //in_buffer.read(ls027_canvas);
-
+                
                 while (nb_read < WIDTH * HEIGHT / 8) {
                     int byte_read = in_buffer.read();
                     if (byte_read >= 0) {
@@ -76,21 +77,28 @@ public class LS027simulator extends Canvas implements Runnable {
                     }
                 }
                 
+                int flag = in_buffer.read();
+                nb_read += 1;
+
                 // neopixel color
                 rgb_neo[0] = in_buffer.read();
                 rgb_neo[1] = in_buffer.read();
                 rgb_neo[2] = in_buffer.read();
                 
                 nb_read += 3;
-
-                //in_buffer.reset();
+                
+            }
+            
+            // force sync
+            while (in_buffer.available() > 0) {
+                nb_read++;
+                in_buffer.read();
             }
 
             if (nb_read > 0) {
                 System.out.println("Pipe updated, read bytes: " + nb_read);
+                this.repaint();
             }
-
-            this.repaint();
 
         } catch (IOException e) {
             // do something
@@ -104,7 +112,7 @@ public class LS027simulator extends Canvas implements Runnable {
         while (true) {
             try {
                 this.read_pipe();
-                sleep(150);
+                sleep(10);
             } catch (InterruptedException ex) {
                 Logger.getLogger(LS027simulator.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -132,7 +140,13 @@ public class LS027simulator extends Canvas implements Runnable {
 
         super.paint(g);
 
-        BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+        BufferedImage img = new BufferedImage(WIDTH + 40, HEIGHT, BufferedImage.TYPE_INT_RGB);
+        Graphics2D    graphics = img.createGraphics();
+
+        graphics.setPaint ( Color.LIGHT_GRAY );
+        graphics.fillRect ( 0, 0, img.getWidth(), img.getHeight() );
+        graphics.setPaint ( Color.LIGHT_GRAY );
+        graphics.drawLine(WIDTH, 0, WIDTH, HEIGHT);
 
         for (int i = 0; i < HW_HEIGHT; i++) {
             for (int j = 0; j < HW_WIDTH / 8; j++) {
@@ -151,14 +165,17 @@ public class LS027simulator extends Canvas implements Runnable {
             }
         }
         
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
+        int pixel_rgb = rgb_neo[0];
+        pixel_rgb = (pixel_rgb << 8) + rgb_neo[1];
+        pixel_rgb = (pixel_rgb << 8) + rgb_neo[2];
 
-                int pixel_rgb = rgb_neo[0];
-                pixel_rgb = (pixel_rgb << 8) + rgb_neo[1];
-                pixel_rgb = (pixel_rgb << 8) + rgb_neo[2];
+        for (int i = -20; i < 20; i++) {
+            for (int j = -20; j < 20; j++) {
 
-                img.setRGB(WIDTH - i - 1, 20 - j - 1, pixel_rgb);
+                if (pixel_rgb != 0 &&
+                        (i*i + j*j <= 15 * 15)) {
+                    img.setRGB(WIDTH + 20 + i, 20 + j, pixel_rgb);
+                }
 
             }
         }
@@ -191,7 +208,7 @@ public class LS027simulator extends Canvas implements Runnable {
         JFrame frame = new JFrame();
 
         frame.setVisible(false);
-        frame.setSize(WIDTH + 20, HEIGHT + 50);
+        frame.setSize(WIDTH + 60, HEIGHT + 45);
         frame.add(sim);
 
         frame.setVisible(true);
