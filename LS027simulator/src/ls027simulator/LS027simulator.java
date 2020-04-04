@@ -143,7 +143,7 @@ public class LS027simulator extends Canvas implements Runnable {
         BufferedImage img = new BufferedImage(WIDTH + 40, HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D    graphics = img.createGraphics();
 
-        graphics.setPaint ( Color.LIGHT_GRAY );
+        graphics.setPaint ( Color.BLACK );
         graphics.fillRect ( 0, 0, img.getWidth(), img.getHeight() );
         graphics.setPaint ( Color.LIGHT_GRAY );
         graphics.drawLine(WIDTH, 0, WIDTH, HEIGHT);
@@ -165,10 +165,15 @@ public class LS027simulator extends Canvas implements Runnable {
             }
         }
         
-        int pixel_rgb = rgb_neo[0];
-        pixel_rgb = (pixel_rgb << 8) + rgb_neo[1];
-        pixel_rgb = (pixel_rgb << 8) + rgb_neo[2];
+        int pixel_rgb = 0;
+        pixel_rgb = ((rgb_neo[0]<<3) & 0xFF);
+        pixel_rgb = (pixel_rgb << 8) + ((rgb_neo[1]<<3) & 0xFF);
+        pixel_rgb = (pixel_rgb << 8) + ((rgb_neo[2]<<3) & 0xFF);
+        //pixel_rgb |= Color.LIGHT_GRAY.getRGB();
 
+         if (pixel_rgb != 0)
+             System.out.println("WS2812 RGB: " + rgb_neo[0]);
+        
         for (int i = -20; i < 20; i++) {
             for (int j = -20; j < 20; j++) {
 
@@ -292,8 +297,6 @@ public class LS027simulator extends Canvas implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(LS027simulator.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        frame.repaint();
 
         Thread t1 = new Thread(sim, "t1");
         t1.start();
