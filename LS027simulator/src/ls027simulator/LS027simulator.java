@@ -292,6 +292,8 @@ public class LS027simulator extends Canvas implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(LS027simulator.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        frame.repaint();
 
         Thread t1 = new Thread(sim, "t1");
         t1.start();

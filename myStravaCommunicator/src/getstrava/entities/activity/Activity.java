@@ -9,10 +9,10 @@ import java.util.List;
  */
 public class Activity {
 
-    private int id;
+    private long id;
     private int resource_state;
     private String external_id;
-    private int upload_id;
+    private long upload_id;
     private Athlete athlete;/*Simple Athlete representation with just id*/
     private String name;
     private float distance;
@@ -71,7 +71,7 @@ public class Activity {
      *
      * @param id
      */
-    public Activity(int id) {
+    public Activity(long id) {
         this.id = id;
     }
 
@@ -79,7 +79,7 @@ public class Activity {
      *
      * @return
      */
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -87,7 +87,7 @@ public class Activity {
      *
      * @param id
      */
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -831,7 +831,7 @@ public class Activity {
      *
      * @return
      */
-    public int getUpload_id() {
+    public long getUpload_id() {
         return upload_id;
     }
 
@@ -839,7 +839,7 @@ public class Activity {
      *
      * @param upload_id
      */
-    public void setUpload_id(int upload_id) {
+    public void setUpload_id(long upload_id) {
         this.upload_id = upload_id;
     }
 }

@@ -39,7 +39,7 @@ public class myStravaDownload {
 
     public myStravaDownload() {
         // token api
-        accessToken = "80cd2921fd74c9e497e68d66aa6d5af9ca5f9db7";
+        accessToken = "e32fc32a469bc9c81d04fdea5699c63d0e05f65a";
         my_segments = new ArrayList<>();
     }
 
@@ -212,14 +212,17 @@ public class myStravaDownload {
 
                     if (!mes_streams.isEmpty()) {
 
-                        ligne = "";
-                        for (j = 0; j < mes_streams.get(0).getOriginal_size(); j++) {
+                        // default value
+                        ligne = "" + curEffort.getId();
+                        
+                        for (j = 0; j < mes_streams.size(); j++) {
                             // on ecrit un trackpoint
-
-                            curStream = mes_streams.get(0);
+                            curStream = mes_streams.get(j);
+                            
                             if (curStream.getType().matches("latlng")) {
-
-                                coord = (List<Double>) curStream.getData().get(j);
+                                
+                                // use first set to calculate name
+                                coord = (List<Double>) curStream.getData().get(0);
 
                                 int lat = (int) ((coord.get(0) + 90) * 100000);
                                 int lon = (int) ((coord.get(1) + 180) * 100000);
@@ -271,27 +274,33 @@ public class myStravaDownload {
                             for (j = 0; j < mes_streams.get(0).getOriginal_size(); j++) {
                                 // on ecrit un trackpoint
                                 ligne = "";
+                                
+                                String latlon = "";
+                                String cur_time = "";
+                                String cur_alt = "";
+                                
                                 for (k = 0; k < mes_streams.size(); k++) {
 
                                     curStream = mes_streams.get(k);
                                     if (curStream.getType().matches("latlng")) {
 
-                                        coord = (List<Double>) curStream.getData().get(j);
-                                        writer.print("" + coord.get(0).toString() + " ; " + coord.get(1).toString() + " ; ");
-                                        ligne = "" + coord.get(0).toString() + " ; " + coord.get(1).toString() + " ; ";
-
+                                        coord = (List<Double>) curStream.getData().get(j);                                        
+                                        latlon = coord.get(0).toString() + " ; " + coord.get(1).toString();
+                                        
                                     } else if (curStream.getType().matches("time")) {
 
-                                        writer.print("" + curStream.getData().get(j).toString() + " ; ");
-                                        tmp_str = curStream.getData().get(j).toString() + " ; ";
-                                        ligne += tmp_str;
+                                        cur_time = curStream.getData().get(j).toString();
 
                                     } else if (curStream.getType().matches("altitude")) {
 
-                                        writer.println("" + curStream.getData().get(j).toString());
-                                        tmp_str = curStream.getData().get(j).toString();
-                                        ligne += tmp_str;
+                                        cur_alt = curStream.getData().get(j).toString();
 
+                                    }
+                                    
+                                    if (!latlon.isEmpty() && !cur_time.isEmpty() && !cur_alt.isEmpty()) {
+                                        
+                                        ligne = latlon + " ; " + cur_time + " ; " + cur_alt;
+                                        writer.println(ligne);
                                     }
                                 }
                                 lignes.add(ligne);

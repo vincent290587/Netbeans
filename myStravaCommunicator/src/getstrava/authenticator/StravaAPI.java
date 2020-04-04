@@ -47,13 +47,13 @@ public class StravaAPI {
 
         JSONObject jsonObj = null;
 
-        HttpHost proxy = new HttpHost("coo-surf.cst.cnes.fr", 8050, "http");
+        HttpHost proxy = new HttpHost("proxy.fr", 8050, "http");
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
 
         credsProvider.setCredentials(
                 new AuthScope(proxy.getHostName(), proxy.getPort()),
-                new UsernamePasswordCredentials("gollev", "Z@pdos22!")
+                new UsernamePasswordCredentials("gollev", "password")
         );
 
         DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);

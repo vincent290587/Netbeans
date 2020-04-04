@@ -49,15 +49,16 @@ public class JStravaV3 implements JStrava {
      */
     public JStravaV3(String access_token) {
 
-        _authenticator = new Authenticator() {
-
-            public PasswordAuthentication getPasswordAuthentication() {
-                return (new PasswordAuthentication("gollev",
-                        "Z@pdos22!".toCharArray()));
-            }
-        };
-        Authenticator.setDefault(_authenticator);
-        _proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("coo-surf.cst.cnes.fr", 8050));
+//        _authenticator = new Authenticator() {
+//
+//            @Override
+//            public PasswordAuthentication getPasswordAuthentication() {
+//                return (new PasswordAuthentication("gollev",
+//                        "password".toCharArray()));
+//            }
+//        };
+//        Authenticator.setDefault(_authenticator);
+//        _proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.address.fr", 8050));
 
         _proxy = null;
         this.accessToken = access_token;
@@ -1014,7 +1015,7 @@ public class JStravaV3 implements JStrava {
             builder.append(types[i]);
         }
 
-        String URL = "https://www.strava.com/api/v3/segment_efforts/" + id + "/streams/" + builder.toString();
+        String URL = "https://www.strava.com/api/v3/segment_efforts/" + id + "/streams?keys=" + builder.toString() + "&key_by_type=";
         String result = getResult(URL);
         Gson gson = new Gson();
         Stream[] streamsArray = gson.fromJson(result, Stream[].class);
